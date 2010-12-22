@@ -103,7 +103,7 @@ class Task(Thread):
         self.args=args
     
     def run(self):
-        self._result=self.target(self.args)
+        self._result=self.target(*self.args)
         return self
     
     def wait(self):
