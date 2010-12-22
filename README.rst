@@ -8,16 +8,22 @@ All using pure python.
 Installation
 ------------
 
-cd into the desired lib directory and type
+taskqueue is available from PyPI
 
-    wget https://github.com/medecau/taskqueue/raw/master/taskqueue.py
+    easy_install taskqueue
 
-or manually download it to the desired destination
+you can also manually download taskqueue from:
+
+https://github.com/medecau/taskqueue/tarball/master
+
+and
+
+python setup.py install
 
 Basic Usage
 -----------
 
-For a simple example look at the end of taskqueue.py
+For a simple example look in test.py
 
 LICENSE
 -------

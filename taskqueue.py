@@ -22,11 +22,9 @@ THE SOFTWARE.
 
 '''
 
-from urllib2 import urlopen
 from threading import Thread
 from collections import deque
 from time import sleep
-from random import random
 from multiprocessing import cpu_count
 
 class Queue(Thread):
@@ -119,40 +117,6 @@ class Task(Thread):
         return self._result
     
     result = property(_get_result)
-
-def main():
-    # ---------
-    # exemplo
-    # ---------
-    
-    def writethis(msg):
-        sleep(random()*0.1)
-        return msg
-
-    q=Queue()
-    for i in range(10):
-        q.append(Task(writethis, args=(i)))
-
-    print 'waiting...'
-
-    q.wait()
-    print 'printing...'
-    while not q.is_empty():
-        print '.',
-        print q.pop().result
-    print q.is_empty()
-    q.die()
-
-
-
-if __name__ == '__main__':
-    main()
-
-
-
-
-
-
 
 
 
