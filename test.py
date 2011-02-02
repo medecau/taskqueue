@@ -8,13 +8,14 @@ def main():
     # ---------
     from random import random
     
-    def writethis(msg):
+    def writethis(msg, msgr='anon'):
         sleep(random()*0.5)
-        return msg
+        return '%s: %s' % (msgr, msg)
 
     q=Queue()
     for i in range(10):
-        q.append(Task(writethis, args=(i)))
+        q.append(Task(writethis, (i, 'desu')))
+        q.append(Task(writethis, (i,)))
 
     print 'waiting...'
 

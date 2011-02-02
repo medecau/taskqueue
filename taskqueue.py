@@ -32,7 +32,7 @@ class Queue(Thread):
     finished=deque()
     _die=False
     
-    def __init__(self, name=None, items=None, num_workers=None):
+    def __init__(self, items=None, num_workers=None):
         Thread.__init__(self)
         if items:
             self.normal.append(items)
@@ -97,7 +97,7 @@ class Queue(Thread):
 class Task(Thread):
     _result=None
     
-    def __init__(self, target, name=None, args=None):
+    def __init__(self, target, args=None):
         Thread.__init__(self)
         self.target=target
         self.args=args
