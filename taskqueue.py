@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 from threading import Thread
 from collections import deque
-from time import sleep
+from time import sleep as _sleep
 from multiprocessing import cpu_count
 
 class Queue(Thread):
@@ -33,6 +33,7 @@ class Queue(Thread):
     _die=False
     
     def __init__(self, items=None, num_workers=None):
+        """Define a Queue that will hold Tasks and run them in parallel."""
         Thread.__init__(self)
         if items:
             self.normal.append(items)
@@ -49,8 +50,11 @@ class Queue(Thread):
         self.start()
     
     def run(self):
+        """Never call this.
+        FIXME: make sure it will not blow up if called after constructions.
+        FIXME: only _sleep() if no Tasks were moved between stacks. A flag will do."""
         while not self._die:
-            sleep(0.1)
+            _sleep(0.1)
             index=0
             while index < len(self.live): # remove finished tasks from live stage
                 task=self.live[index]
@@ -68,29 +72,34 @@ class Queue(Thread):
                     pass # no Tasks in queue
     
     def append(self, item):
+        """Appends a Task to the end of the Queue."""
         if type(item) is type(iter('')) or type(item) is type(list()):
             self.normal.extend(iter(item))
         else:
             self.normal.append(item)
     
     def pop(self):
+        """Return a Task from the finished stack. Returns the Task that finished first."""
         while not self.is_empty():
             try:
                 return self.finished.popleft()
             except IndexError:
-                sleep(0.1)
+                _sleep(0.1)
     
     def wait(self):
+        """Wait for the Queue to be done with all the Tasks. This will block until the Queue is done."""
         while (not self._die and len(self.normal)>0) or len(self.live)>0:
-            sleep(0.1)
+            _sleep(0.1)
         self.die()
     
     def is_empty(self):
+        """Check if the queue has any Tasks in it. Does not block and is a good alternative to wait()."""
         if len(self.normal)+len(self.finished)+len(self.live)>0:
             return False
         else:
             return True
     def die(self):
+        """This will stop the Queue thread at the next opportunity. It will not stop running Tasks."""
         self._die=True
 
 
@@ -98,11 +107,13 @@ class Task(Thread):
     _result=None
     
     def __init__(self, target, args=None):
+        """Define a Task to run later."""
         Thread.__init__(self)
         self.target=target
         self.args=args
     
     def run(self):
+        """Run the Task. with the provided arguments."""
         self._result=self.target(*self.args)
         return self
     
@@ -114,6 +125,7 @@ class Task(Thread):
         return self
     
     def _get_result(self):
+        """The return result of the Task, if any."""
         return self._result
     
     result = property(_get_result)
