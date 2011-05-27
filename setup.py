@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name = 'taskqueue',
-      version = '0.2',
+      version = '0.3',
       py_modules = ['taskqueue',],
       description  =  "A set of classes to queue and thread function calls.",
       author  =  "Pedro Rodrigues",
