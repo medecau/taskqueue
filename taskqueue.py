@@ -106,13 +106,14 @@ class Queue(Thread):
 
 
 class Task(Thread):
-    _result=None
     
-    def __init__(self, target, args=None):
+    def __init__(self, target, args=None, meta=None):
         """Define a Task to run later."""
         Thread.__init__(self)
         self.target=target
         self.args=args
+        self.result=None
+        self.meta=meta
     
     def run(self):
         """Run the Task. with the provided arguments."""
@@ -120,17 +121,12 @@ class Task(Thread):
         return self
     
     def wait(self):
+        """Blocks until the Task is over."""
         try:
             self.join(100)
         except:
             pass
         return self
-    
-    def _get_result(self):
-        """The return result of the Task, if any."""
-        return self._result
-    
-    result = property(_get_result)
 
 
 
