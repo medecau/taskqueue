@@ -51,7 +51,7 @@ class Queue(Thread):
     
     def run(self):
         """Never call this.
-        FIXME: make sure it will not blow up if called after constructions.
+        FIXME: make sure it will not blow up if called after construction.
         FIXME: only _sleep() if no Tasks were moved between stacks. A flag will do."""
         while not self._die:
             _sleep(0.1)
@@ -79,7 +79,9 @@ class Queue(Thread):
             self.normal.append(item)
     
     def pop(self):
-        """Return a Task from the finished stack. Returns the Task that finished first."""
+        """Return a Task from the finished stack. Returns tasks in order of having been found to be finished.
+        Blocks when no finished Task is available.
+        Returns None when Queue is empty"""
         while not self.is_empty():
             try:
                 return self.finished.popleft()
@@ -87,7 +89,7 @@ class Queue(Thread):
                 _sleep(0.1)
     
     def wait(self):
-        """Wait for the Queue to be done with all the Tasks. This will block until the Queue is done."""
+        """Wait for the Queue to be done with all the Tasks. This will block until the Queue is empty. Usefull at the end of the script."""
         while (not self._die and len(self.normal)>0) or len(self.live)>0:
             _sleep(0.1)
         self.die()
@@ -99,7 +101,7 @@ class Queue(Thread):
         else:
             return True
     def die(self):
-        """This will stop the Queue thread at the next opportunity. It will not stop running Tasks."""
+        """This will stop the Queue thread at the next opportunity. It will not stop running Tasks. Useful at the end of the script right after a call to wait()"""
         self._die=True
 
 
