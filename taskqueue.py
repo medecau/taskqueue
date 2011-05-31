@@ -117,7 +117,7 @@ class Task(Thread):
     
     def run(self):
         """Run the Task. with the provided arguments."""
-        self._result=self.target(*self.args)
+        self.result=self.target(*self.args)
         return self
     
     def wait(self):
