@@ -1,6 +1,4 @@
-from taskqueue import Queue
-from taskqueue import Task
-from time import time, sleep
+import taskqueue
 
 def euler5(n):
     init=time()
@@ -23,24 +21,16 @@ def euler5(n):
     return (time()-init, num)
 
 def main():
-    # ---------
-    # Example
-    # ---------
-    from random import random
-    init=time()
-    q=Queue()
-    for i in range(6):
-        q.append(Task(euler5, (17,)))
-        q.append(Task(euler5, (11,)))
-
-    print 'waiting...'
-
+    
+    q = taskqueue.Queue()
+    
+    q.add(euler5, 9)
+    
     q.wait()
-    print 'printing...'
-    while not q.is_empty():
-        print 'took: %f - value: %d' % q.pop().result
-    q.die()
-    print 'total running time: %f' % (time()-init)
+    
+    for task in q.finished:
+        print task.result
+    
 
 
 if __name__ == '__main__':
