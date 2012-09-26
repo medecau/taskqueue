@@ -88,8 +88,7 @@ class Task(Thread):
         try:
             self._result = self.target(*self.args)
         except BaseException, e:
-            self.join(0)
-            raise e
+            return e
         return self
 
 

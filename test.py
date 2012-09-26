@@ -1,4 +1,5 @@
 import taskqueue
+from time import time
 
 def euler5(n):
     init=time()
