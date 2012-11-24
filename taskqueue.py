@@ -20,7 +20,7 @@ class Queue(Thread):
         # NO NEED FOR FANCY STUFF
         self.waiting = list()
         self.running = list()
-        self.finished = list()
+        self._finished = list()
         
         # LSTS
         self.dying = False
@@ -30,18 +30,16 @@ class Queue(Thread):
         do_sleep = False
         while True:
             # MOVE FINISHED TASKS OUT OF THE RUNNING LIST
-            finished_tasks = [task for task in self.running if not task.is_alive]
-            if len(finished_tasks)>0:
-                do_sleep = True
             for task in self.running:
-                self.finished.append(task)
-                self.running.remove(task)
-            
+                if not task.is_alive():
+                    self._finished.append(task)
+                    self.running.remove(task)
+                    do_sleep = True
             
             # ADD TASKS TO THE RUNNING LIST
-            if not do_sleep and len(self.waiting)>0 and len(self.running)<=self.num_workers:
+            if not do_sleep and len(self.waiting)>0 and len(self.running)<self.num_workers:
                 do_sleep = True
-            while len(self.waiting)>0 and len(self.running)<=self.num_workers:
+            while len(self.waiting)>0 and len(self.running)<self.num_workers:
                 task = self.waiting.pop(0)
                 self.running.append(task)
                 task.start()
@@ -59,7 +57,7 @@ class Queue(Thread):
                 sleep(0.1) # KEEP THIS INTERVAL SHORT BUT NOT TOO SHORT
             
             # CHECK IF TIMEOUT INTERVAL HAS PASSED
-            if self.dying and time()-self.idle_start>self.idle_timeout:
+            if self.idle and self.dying and time()-self.idle_start>self.idle_timeout:
                 break # THE LOOP
     
     
@@ -68,13 +66,24 @@ class Queue(Thread):
     
     
     def wait(self):
-        while self.idle and self.is_alive():
-            sleep(0.2)
-            
+        while not self.idle:
+            sleep(0.1)
     
     @property
     def idle(self):
-        return len(self.waiting)+len(self.running)==0
+        return len(self.waiting)==0 and len(self.running)==0
+    
+    @property
+    def finished(self):
+        cursor = 0
+        while True:
+            if cursor<len(self._finished):
+                yield self._finished[cursor]
+                cursor+=1
+            elif self.idle and cursor>=len(self._finished):
+                break
+            else:
+                sleep(0.1)
 
 
 class Task(Thread):
@@ -88,13 +97,14 @@ class Task(Thread):
         try:
             self._result = self.target(*self.args)
         except BaseException, e:
-            return e
+            self._result= e
         return self
 
 
     @property
     def result(self):
-        self.join(10)
+        while self.is_alive():
+            sleep(0.5)
         return self._result
 
 

@@ -1,37 +1,25 @@
 import taskqueue
-from time import time
+from time import time, sleep
 
-def euler5(n):
-    init=time()
-    divs=range(n,0,-1)
-    for e in divs:
-        for f in divs[::-1]:
-            if e%f==0 and e!=f:
-                divs.remove(f)
-
-    num=0
-    not_found=True
-    while not_found:
-        num+=n
-        not_found=False
-        for each in divs:
-            if num%each!=0:
-                not_found=True
-                break
-
-    return (time()-init, num)
+def action(n):
+    print "."
+    sleep(n)
+    return True
 
 def main():
+    start = time()
+    q = taskqueue.Queue(workers=2)
     
-    q = taskqueue.Queue()
-    
-    q.add(euler5, 9)
-    
-    q.wait()
+    print "testing 10 tasks that sleep for 2 seconds each"
+    print "this should take over 20 seconds total"
+    print "will probably take half with taskqueue"
+    print q.num_workers
+    for i in range(10):
+        q.add(action, 2)
     
     for task in q.finished:
         print task.result
-    
+    print time()-start
 
 
 if __name__ == '__main__':
